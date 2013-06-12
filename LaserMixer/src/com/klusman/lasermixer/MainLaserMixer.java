@@ -2,6 +2,7 @@ package com.klusman.lasermixer;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL10;
@@ -13,47 +14,58 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.collision.Ray;
 
 
 
-public class MainLaserMixer implements ApplicationListener {
+public class MainLaserMixer implements ApplicationListener, InputProcessor {
 
-	private final Input input = new Input();
 	public static OrthographicCamera camera;
-	public static SpriteBatch batch;
-	public static Texture texture;
-	public static Sprite bgSprite;
-	public static Texture bucketTex;
-	public static Sprite bucket;
-	public static Texture ballTex;
-	public static Sprite ball;
-	public static Texture girderTex;
-	public static Sprite girder;
-	public static Texture girderTex2;
-	public static Sprite girder2;
-	public static Texture girderTex3;
-	public static Sprite girder3;
-	public static Texture angChangeOverlayTex;
-	public static Sprite angChangeOverlay;
-	public static Texture lazerStartTex;
-	public static Sprite lazerStart;
-	public static Texture cornerTex;
-	public static Sprite corner;
-	public static Texture tubeTex;
-	public static Sprite tube;
-	public static Sound metalDing;
-	public static Sound bounce;
-	public static Sound powerUp;
-	public static Music bgMusic;
+	
+	SpriteBatch batch;
+	Texture texture;
+	Sprite bgSprite;
+	Texture bucketTex;
+	Sprite bucket;
+	Texture ballTex;
+	Sprite ball;
+	Texture girderTex;
+	Sprite girder;
+	Texture angChangeOverlayTex;
+	Sprite angChangeOverlay;
+	Texture lazerStartTex;
+	Sprite lazerStart;
+	Texture cornerTex;
+	Sprite corner;
+	Texture tubeTex;
+	Sprite tube;
+	Sound metalDing;
+	Sound bounce;
+	Sound powerUp;
+	Music bgMusic;
 	float w;
 	float h;
 	
+
+	
+
+
+
+	
 	@Override
 	public void create() {		
-		w = Gdx.graphics.getWidth();
-		h = Gdx.graphics.getHeight();
+
+	          
+		
+		
 	
-		Gdx.input.setInputProcessor(input);
+		float w = Gdx.graphics.getWidth();
+	    float h = Gdx.graphics.getHeight();
+
+	    camera = new OrthographicCamera(1, h/w);
+	    batch = new SpriteBatch();
+	
 		metalDing = Gdx.audio.newSound(Gdx.files.internal("audio/Metalping.wav"));
 		bounce = Gdx.audio.newSound(Gdx.files.internal("audio/Ball_Bounce.wav"));
 		powerUp = Gdx.audio.newSound(Gdx.files.internal("audio/Laser.wav"));
@@ -63,8 +75,6 @@ public class MainLaserMixer implements ApplicationListener {
 	    bgMusic.setVolume(0.05f);
 	    bgMusic.play();
 		
-		camera = new OrthographicCamera(1, h/w);
-		batch = new SpriteBatch();
 		
 ////  BACKGROUND  ////
 		texture = new Texture(Gdx.files.internal("data/bgblue2.png"));
@@ -73,7 +83,7 @@ public class MainLaserMixer implements ApplicationListener {
 		TextureRegion region = new TextureRegion(texture, 0, 0, texture.getWidth(), texture.getHeight());
 		
 		bgSprite = new Sprite(region);
-		bgSprite.setSize(1, h/w);
+		bgSprite.setSize(w, h);
 		bgSprite.setOrigin(bgSprite.getWidth()/2, bgSprite.getHeight()/2);
 		bgSprite.setPosition(-bgSprite.getWidth()/2, -bgSprite.getHeight()/2);
 		
@@ -114,31 +124,6 @@ public class MainLaserMixer implements ApplicationListener {
 		girder.setPosition(-.4f - girder.getWidth()/2, -.2f - girder.getHeight()/2);
 		girder.setRotation(-30);
 		
-//// GIRDER2 ////
-		
-		girderTex2 = new Texture(Gdx.files.internal("data/girder.png"));
-		girderTex2.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		
-		TextureRegion girderRegion2 = new TextureRegion(girderTex2, 0, 0, girderTex2.getWidth(), girderTex2.getHeight());
-		
-		girder2 = new Sprite(girderRegion2);
-		girder2.setSize(girderTex2.getWidth() / w, girderTex2.getHeight() / h);
-		girder2.setOrigin(girder2.getWidth()/2, girder2.getHeight()/2);
-		girder2.setPosition(-.4f - girder2.getWidth()/2, -.045f - girder2.getHeight()/2);
-		girder2.setRotation(-40);
-		
-//// GIRDER3 ////
-		
-		girderTex3 = new Texture(Gdx.files.internal("data/girder.png"));
-		girderTex3.setFilter(TextureFilter.Linear, TextureFilter.Linear);
-		
-		TextureRegion girderRegion3 = new TextureRegion(girderTex3, 0, 0, girderTex3.getWidth(), girderTex3.getHeight());
-		
-		girder3 = new Sprite(girderRegion3);
-		girder3.setSize(girderTex3.getWidth() / w, girderTex3.getHeight() / h);
-		girder3.setOrigin(girder3.getWidth()/2, girder3.getHeight()/2);
-		girder3.setPosition(-.35f - girder3.getWidth()/2, .029f - girder3.getHeight()/2);
-		girder3.setRotation(-50);
 		
 //// Angle Change Overlay ////
 		
@@ -178,47 +163,49 @@ public class MainLaserMixer implements ApplicationListener {
 		tube.setRotation(-90);
 		tube.setOrigin(tube.getWidth()/2, tube.getHeight()/2);
 		tube.setPosition(0f , corner.getY() + corner.getWidth()/2 - tube.getWidth());
-	}
+	}  // END Create
 
 	@Override
 	public void dispose() {
 		batch.dispose();
 		texture.dispose();
+		lazerStartTex.dispose();
+		cornerTex.dispose();
+		tubeTex.dispose();
+		angChangeOverlayTex.dispose();
+		girderTex.dispose();
 	}
 
 	@Override
 	public void render() {		
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
-		
+
+        
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		bgSprite.draw(batch);
-		//bucket.draw(batch);
-		ball.draw(batch);
-		girder.draw(batch);
-		//girder2.draw(batch);
-		//girder3.draw(batch);
-		corner.draw(batch);
-		tube.draw(batch);
-		lazerStart.draw(batch);
-		angChangeOverlay.draw(batch);
+			bgSprite.draw(batch);
+			ball.draw(batch);
+			girder.draw(batch);
+			corner.draw(batch);
+			tube.draw(batch);
+			lazerStart.draw(batch);
+			angChangeOverlay.draw(batch);
 		batch.end();	
 
 		ShapeRenderer shapeRenderer = new ShapeRenderer();
 		shapeRenderer.setProjectionMatrix(camera.combined);
-		float startX = lazerStart.getX() + lazerStart.getWidth()/2;
-		float startY = lazerStart.getY() + lazerStart.getHeight();
+			float startX = lazerStart.getX() + lazerStart.getWidth()/2;
+			float startY = lazerStart.getY() + lazerStart.getHeight();
 		
-		float Xc = corner.getX() + corner.getWidth()/2;
-		float Yc = corner.getY();
+			float Xc = corner.getX() + corner.getWidth()/2;
+			float Yc = corner.getY();
 		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.setColor(0, 1, 0, 1);
-		Gdx.gl10.glLineWidth(10);
-		shapeRenderer.line(startX, startY, Xc, Yc);
+			shapeRenderer.setColor(0, 1, 0, 1);
+			Gdx.gl10.glLineWidth(10);
+			shapeRenderer.line(startX, startY, Xc, Yc);
 		shapeRenderer.end();
-		
-		
+
 	}
 
 		
@@ -247,21 +234,101 @@ public class MainLaserMixer implements ApplicationListener {
 		//float Yt = tube.getY() + tube.getHeight()/2;
 		
 		
-		ShapeRenderer shapeRenderer = new ShapeRenderer();
-		shapeRenderer.setProjectionMatrix(camera.combined);
-		 
-		shapeRenderer.begin(ShapeType.Line);
-		shapeRenderer.setColor(1, 0, 0, 1);
-		Gdx.gl10.glLineWidth(10);
-		shapeRenderer.line(startX, startY, Xc, Yc);
-		shapeRenderer.end();
-		
+//		ShapeRenderer shapeRenderer = new ShapeRenderer();
+//		shapeRenderer.setProjectionMatrix(camera.combined);
+//		 
+//		shapeRenderer.begin(ShapeType.Line);
+//		shapeRenderer.setColor(1, 0, 0, 1);
+//		Gdx.gl10.glLineWidth(10);
+//		shapeRenderer.line(startX, startY, Xc, Yc);
+//		shapeRenderer.end();
+//		
 //		shapeRenderer.begin(ShapeType.Line);
 //		shapeRenderer.setColor(1, 0, 0, 1);
 //		Gdx.gl10.glLineWidth(10);
 //		shapeRenderer.line(Xc, Yc, Xt, Yt);
 //		shapeRenderer.end();
 		 
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+
+        Vector2 touchPos = new Vector2();
+        touchPos.set(Gdx.input.getX(), Gdx.input.getY());
+
+        Ray cameraRay = camera.getPickRay(touchPos.x, touchPos.y);
+        Gdx.app.log("RAY", "Touch Ray Coords:  X:"  + cameraRay.origin.x + " Y:" + cameraRay.origin.y);
+        
+		boolean lazerBool = lazerStart.getBoundingRectangle().contains(cameraRay.origin.x, cameraRay.origin.y);
+		boolean ballBool = ball.getBoundingRectangle().contains(cameraRay.origin.x, cameraRay.origin.y);
+		boolean cornerBool = corner.getBoundingRectangle().contains(cameraRay.origin.x, cameraRay.origin.y);
+		boolean tubeBool = tube.getBoundingRectangle().contains(cameraRay.origin.x, cameraRay.origin.y);
+		//MainRolling.drawLine(tt.origin.x, tt.origin.y);
+		if(lazerBool == true){
+			
+			Gdx.app.log("TOUCHED", "Laser:" + lazerBool);
+			powerUp.play();
+			
+			//MainRolling.drawLazerLine();  Broken
+			
+			 
+		}
+		if(ballBool == true){
+			Gdx.app.log("TOUCHED", "Ball:" + ballBool);
+			bounce.play();
+		}
+		if(cornerBool == true){
+			Gdx.app.log("TOUCHED", "Corner:" + lazerBool);
+			metalDing.play();
+		}
+		if(tubeBool == true){
+			Gdx.app.log("TOUCHED", "Metal Tube:" + tubeBool);
+			metalDing.play();
+		}
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean mouseMoved(int screenX, int screenY) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 
